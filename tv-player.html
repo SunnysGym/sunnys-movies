@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>sunny's movie's</title>
+    
+    <!-- Open Graph / Discord Embed Meta Tags -->
+    <meta property="og:title" content="Watch TV - sunny's movie's">
+    <meta property="og:description" content="Watch your favorite TV shows online for free on sunny's movie's">
+    <meta property="og:url" content="https://sunnys-movies.vercel.app/tv-player.html">
+    <meta property="og:type" content="video.episode">
+    <meta property="og:image" content="https://sunnys-movies.vercel.app/favicon.ico">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Watch TV - sunny's movie's">
+    <meta name="twitter:description" content="Watch your favorite TV shows online for free on sunny's movie's">
+    <meta name="twitter:image" content="https://sunnys-movies.vercel.app/favicon.ico">
+    
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  </head>
+  <body>
+    <nav>
+      <h1>sunny's movie's</h1>
+      <div>
+        <a href="index.html">Home</a>
+        <a href="movies.html">Movies</a>
+        <a href="shows.html">TV</a>
+      </div>
+    </nav>
+    <main>
+      <div style="margin-bottom: 10px;">
+        <label for="player-source">choose a tv source:</label>
+        <select id="player-source">
+          <option value="streamlink">streamlink (default)</option>
+          <option value="embed.su">embed.su</option>
+          <option value="moviesapi.club">moviesapi.club</option>
+          <option value="vidbinge">vidbinge</option>
+          <option value="vidsrc">vidsrc</option>
+          <option value="2embed">2embed</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom: 10px;">
+        <label for="season-select">season:</label>
+        <select id="season-select"></select>
+        <label for="episode-select" style="margin-left: 10px;">episode:</label>
+        <select id="episode-select"></select>
+      </div>
+
+      <div id="player-container">
+        <h1>Loading...</h1>
+      </div>
+    </main>
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const tmdbId = urlParams.get("tmdbid");
+      const initialSeason = parseInt(urlParams.get("season"), 10) || 1;
+      const initialEpisode = parseInt(urlParams.get("episode"), 10) || 1;
+
+      const API_KEY = "caf0968750f2f8fc263e75f84b1d1e87";
+      const API_URL = "https://api.themoviedb.org/3";
+
+      const playerContainer = document.getElementById("player-container");
+      const playerSource = document.getElementById("player-source");
+      const seasonSelect = document.getElementById("season-select");
+      const episodeSelect = document.getElementById("episode-select");
+
+      const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+
+      async function populateSeasonsAndEpisodes() {
+        if (!tmdbId) return;
+        try {
+          const response = await fetch(`${API_URL}/tv/${tmdbId}?api_key=${API_KEY}`);
+          const data = await response.json();
+
+          seasonSelect.innerHTML = "";
+          (data.seasons || []).forEach((season) => {
+            if (!season.season_number) return; // skip specials (0) for simplicity
+            const option = document.createElement("option");
+            option.value = season.season_number;
+            option.textContent = `Season ${season.season_number}`;
+            seasonSelect.appendChild(option);
+          });
+
+          seasonSelect.value = String(initialSeason);
+          await populateEpisodes(initialSeason);
+          episodeSelect.value = String(initialEpisode);
+        } catch (e) {
+          console.error("Failed to load seasons/episodes", e);
+        }
+      }
+
+      async function populateEpisodes(seasonNumber) {
+        episodeSelect.innerHTML = "";
+        try {
+          const response = await fetch(`${API_URL}/tv/${tmdbId}/season/${seasonNumber}?api_key=${API_KEY}`);
+          const data = await response.json();
+          (data.episodes || []).forEach((ep) => {
+            const option = document.createElement("option");
+            option.value = ep.episode_number;
+            option.textContent = `Ep ${ep.episode_number}: ${ep.name || "Episode"}`;
+            episodeSelect.appendChild(option);
+          });
+        } catch (e) {
+          console.error("Failed to load episodes", e);
+        }
+      }
+
+      function loadPlayer(source) {
+        if (tmdbId) {
+          const season = seasonSelect.value || initialSeason;
+          const episode = episodeSelect.value || initialEpisode;
+          const iframe = document.createElement("iframe");
+          iframe.allow = "autoplay; fullscreen";
+          iframe.allowfullscreen = true;
+          if (!isElectron) {
+            iframe.sandbox = "allow-scripts allow-same-origin allow-forms allow-presentation";
+            iframe.referrerPolicy = "no-referrer";
+          }
+
+          if (source === "streamlink") {
+            iframe.src = `https://www.vidlink.pro/tv/${tmdbId}/${season}-${episode}?autoplay=false`;
+          } else if (source === "embed.su") {
+            iframe.src = `https://embed.su/embed/tv/${tmdbId}/${season}/${episode}`;
+          } else if (source === "moviesapi.club") {
+            iframe.src = `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`;
+          } else if (source === "vidbinge") {
+            iframe.src = `https://vidbinge.dev/embed/tv/${tmdbId}/${season}/${episode}`;
+          } else if (source === "vidsrc") {
+            iframe.src = `https://vidsrc.net/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+          } else if (source === "2embed") {
+            iframe.src = `https://www.2embed.skin/embedtv/${tmdbId}&s=${season}&e=${episode}`;
+          }
+
+          playerContainer.innerHTML = "";
+          playerContainer.appendChild(iframe);
+        } else {
+          playerContainer.innerHTML = "<h1>error: no tv show found :c</h1>";
+        }
+      }
+
+      // initial setup
+      populateSeasonsAndEpisodes().then(() => {
+        loadPlayer("streamlink");
+      });
+
+      playerSource.addEventListener("change", (e) => {
+        loadPlayer(e.target.value);
+      });
+
+      seasonSelect.addEventListener("change", async (e) => {
+        const newSeason = e.target.value;
+        await populateEpisodes(newSeason);
+        episodeSelect.selectedIndex = 0;
+        loadPlayer(playerSource.value);
+      });
+
+      episodeSelect.addEventListener("change", () => {
+        loadPlayer(playerSource.value);
+      });
+    </script>
+  </body>
+  </html>
+
+

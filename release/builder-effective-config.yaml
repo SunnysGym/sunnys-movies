@@ -1,0 +1,31 @@
+directories:
+  output: release
+  buildResources: build
+appId: com.sunny.movies
+productName: Sunny's Movies
+artifactName: SunnysMovies-${version}-Setup.${ext}
+files:
+  - filter:
+      - index.html
+      - movies.html
+      - player.html
+      - shows.html
+      - tv-player.html
+      - index.js
+      - popular.js
+      - popular-tv.js
+      - styles.css
+      - favicon.ico
+      - main.js
+      - build/**/*
+win:
+  target: nsis
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: Sunny's Movies
+  warningsAsErrors: false
+  include: build/installer.nsh
+electronVersion: 30.5.1

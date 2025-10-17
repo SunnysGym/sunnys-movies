@@ -1,0 +1,54 @@
+{
+  "name": "sunnys-movies2",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A simple movies and TV browser/player using TMDB and multiple embed sources.",
+  "author": "sunny",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:mac:arm": "electron-builder --mac --arm64",
+    "dist:mac:universal": "electron-builder --mac --universal"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.sunny.movies",
+    "productName": "Sunny's Movies",
+    "artifactName": "SunnysMovies-${version}-Setup.${ext}",
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "files": [
+      "index.html",
+      "movies.html",
+      "player.html",
+      "shows.html",
+      "tv-player.html",
+      "index.js",
+      "popular.js",
+      "popular-tv.js",
+      "styles.css",
+      "favicon.ico",
+      "main.js",
+      "build/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Sunny's Movies",
+      "warningsAsErrors": false,
+      "include": "build/installer.nsh"
+    }
+  }
+}

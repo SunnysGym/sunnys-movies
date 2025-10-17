@@ -19,8 +19,8 @@
     <meta name="twitter:description" content="Watch your favorite movies online for free on sunny's movie's">
     <meta name="twitter:image" content="https://sunnys-movies.vercel.app/favicon.ico">
     
-    <link rel="stylesheet" href="/styles.css">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
   </head>
   <body>
     <nav>
@@ -28,6 +28,7 @@
       <div>
         <a href="index.html">Home</a>
         <a href="movies.html">Movies</a>
+        <a href="shows.html">TV</a>
       </div>
     </nav>
     <main>
@@ -53,11 +54,17 @@
       const playerContainer = document.getElementById("player-container");
       const playerSource = document.getElementById("player-source");
 
+      const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+
       function loadPlayer(source) {
         if (tmdbId) {
           const iframe = document.createElement("iframe");
           iframe.allow = "autoplay; fullscreen";
           iframe.allowfullscreen = true;
+          if (!isElectron) {
+            iframe.sandbox = "allow-scripts allow-same-origin allow-forms allow-presentation";
+            iframe.referrerPolicy = "no-referrer";
+          }
 
           if (source === "streamlink") {
             iframe.src = `https://www.vidlink.pro/movie/${tmdbId}?autoplay=false`;
