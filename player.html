@@ -54,17 +54,11 @@
       const playerContainer = document.getElementById("player-container");
       const playerSource = document.getElementById("player-source");
 
-      const isElectron = navigator.userAgent.toLowerCase().includes('electron');
-
       function loadPlayer(source) {
         if (tmdbId) {
           const iframe = document.createElement("iframe");
           iframe.allow = "autoplay; fullscreen";
           iframe.allowfullscreen = true;
-          if (!isElectron) {
-            iframe.sandbox = "allow-scripts allow-same-origin allow-forms allow-presentation";
-            iframe.referrerPolicy = "no-referrer";
-          }
 
           if (source === "streamlink") {
             iframe.src = `https://www.vidlink.pro/movie/${tmdbId}?autoplay=false`;
