@@ -69,7 +69,6 @@
       const seasonSelect = document.getElementById("season-select");
       const episodeSelect = document.getElementById("episode-select");
 
-      const isElectron = navigator.userAgent.toLowerCase().includes('electron');
 
       async function populateSeasonsAndEpisodes() {
         if (!tmdbId) return;
@@ -117,10 +116,6 @@
           const iframe = document.createElement("iframe");
           iframe.allow = "autoplay; fullscreen";
           iframe.allowfullscreen = true;
-          if (!isElectron) {
-            iframe.sandbox = "allow-scripts allow-same-origin allow-forms allow-presentation";
-            iframe.referrerPolicy = "no-referrer";
-          }
 
           if (source === "streamlink") {
             iframe.src = `https://www.vidlink.pro/tv/${tmdbId}/${season}-${episode}?autoplay=false`;
