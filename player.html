@@ -60,6 +60,7 @@
           const iframe = document.createElement("iframe");
           iframe.allow = "autoplay; fullscreen";
           iframe.allowfullscreen = true;
+          iframe.sandbox = "allow-scripts allow-same-origin allow-forms allow-presentation allow-popups";
 
           if (source === "streamlink") {
             iframe.src = `https://www.vidlink.pro/movie/${tmdbId}?autoplay=false`;
